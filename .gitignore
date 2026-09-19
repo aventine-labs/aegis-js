@@ -6,3 +6,4 @@ examples/starter-app/dist/
 examples/starter-app/node_modules/
 .DS_Store
 *.log
+.npmrc
