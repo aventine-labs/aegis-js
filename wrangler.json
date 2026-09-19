@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aegis-js",
+  "compatibility_date": "2024-09-19",
+  "assets": {
+    "directory": "./docs/.vitepress/dist",
+    "binding": "ASSETS"
+  }
+}
