@@ -1,0 +1,56 @@
+{
+  "name": "@aventine/aegis-js",
+  "version": "1.0.0",
+  "description": "The Standard Library for Silicon-Speed, Zero-GC Flat Memory Arenas in JavaScript and Node.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --expose-gc --test dist/__tests__/*.test.js",
+    "test:src": "node --expose-gc --test --loader ts-node/esm src/__tests__/*.test.ts",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "benchmark": "node --expose-gc dist/__tests__/zero_gc.test.js"
+  },
+  "keywords": [
+    "memory",
+    "zero-gc",
+    "flat-buffer",
+    "cache-alignment",
+    "64-byte",
+    "high-frequency",
+    "fintech",
+    "performance",
+    "systems",
+    "aegis",
+    "aventine"
+  ],
+  "author": "Mark Gilbert <mark@aventinelabs.com> (Aventine Labs LLC)",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/aventine-labs/aegis-js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aventine-labs/aegis-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aventine-labs/aegis-js/issues"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitepress": "^1.0.0"
+  }
+}

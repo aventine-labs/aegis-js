@@ -1,0 +1,8 @@
+node_modules/
+dist/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+examples/starter-app/dist/
+examples/starter-app/node_modules/
+.DS_Store
+*.log
