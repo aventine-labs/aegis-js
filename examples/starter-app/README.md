@@ -1,6 +1,6 @@
 # Aegis.js Turnkey Starter Application
 
-This is a complete, runnable example demonstrating `@aventine/aegis-js` in TypeScript.
+This is a complete, runnable example demonstrating `@aventine/aegis-js` in modern JavaScript with zero external dependencies.
 
 It showcases:
 - Defining a 64-byte cache line aligned telemetry struct schema.
@@ -21,9 +21,9 @@ Ensure the main library is built:
 npm run build --prefix packages/aegis-js
 ```
 
-Then run the starter app:
+Then run the starter script directly with Node.js (zero npm dependencies required):
 
 ```bash
-cd packages/aegis-js/examples/starter-app
-npm run start
+node packages/aegis-js/examples/starter-app/index.js
 ```
+

@@ -117,7 +117,7 @@ packages/aegis-js/
 │   ├── benchmarks/          # Empirical benchmark data
 │   └── index.md             # Landing page
 ├── examples/
-│   └── starter-app/         # Turnkey runnable TypeScript project
+│   └── starter-app/         # Turnkey zero-install runnable starter script (index.js)
 ├── package.json              # Dual ESM/CJS exports
 ├── tsconfig.json             # TypeScript configuration
 ├── LICENSE                   # Apache 2.0 License
