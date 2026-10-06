@@ -52,7 +52,7 @@
     "url": "https://github.com/aventine-labs/aegis-js/issues"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
+    "typescript": "^7.0.2",
     "vitepress": "^1.0.0"
   }
 }
