@@ -140,6 +140,16 @@ O(1) slot allocator with sub-nanosecond `alloc()` and `free()`. Pre-allocates me
 
 ---
 
+## Architecture, Provenance & Incubation History
+
+Aegis.js was originally architected, developed, and soak-tested within the private monorepo of Aventine Labs LLC as the zero-garbage-collection core underpinning our high-throughput data pipelines and financial simulations.
+
+Before public release, the codebase underwent extensive internal micro-benchmarking, V8 trace-gc memory verification, and stress testing. Following production validation across internal workloads, Aegis.js was extracted and packaged into this dedicated standalone open-source distribution repository for v1.0.0 release under the Apache 2.0 license.
+
+Complete development registries, architecture whitepapers, and soak-test receipts are maintained in the central Aventine Labs research registry.
+
+---
+
 ## License
 
 The Aegis.js standard library is released under the [Apache 2.0 License](LICENSE).  

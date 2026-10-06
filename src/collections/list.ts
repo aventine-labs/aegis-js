@@ -64,6 +64,8 @@ export class AegisList<T = any> {
 
   /**
    * Push a record into the list. If capacity is exceeded, automatically reallocates.
+   * Note: passing an object literal allocates a temporary object on the JS engine heap.
+   * For strict zero-allocation workflows, use emplace(), emplaceWith(), or appendCursor().
    */
   public push(item: Partial<T> | Record<string, any>): number {
     if (this._length >= this._capacity) {
@@ -72,6 +74,60 @@ export class AegisList<T = any> {
     const idx = this._length++;
     this._cursor.moveTo(idx).copyFrom(item);
     return this._length;
+  }
+
+  /**
+   * Zero-allocation emplace accepting positional primitive arguments matching struct field order.
+   * Bypasses intermediate JavaScript object literal allocation entirely.
+   */
+  public emplace(...values: any[]): number {
+    if (this._length >= this._capacity) {
+      this.grow();
+    }
+    const idx = this._length++;
+    const c = this._cursor.moveTo(idx);
+    const fields = this.struct.fields;
+    const num = Math.min(fields.length, values.length);
+    for (let i = 0; i < num; i++) {
+      (c as any)[fields[i].name] = values[i];
+    }
+    return this._length;
+  }
+
+  /**
+   * Zero-allocation emplace via callback.
+   * Passes the reusable flyweight cursor to the writer function.
+   */
+  public emplaceWith(writer: (row: T) => void): number {
+    if (this._length >= this._capacity) {
+      this.grow();
+    }
+    const idx = this._length++;
+    writer(this._cursor.moveTo(idx) as unknown as T);
+    return this._length;
+  }
+
+  /**
+   * Increment list size by 1 with zero allocation.
+   */
+  public append(): number {
+    if (this._length >= this._capacity) {
+      this.grow();
+    }
+    return this._length++;
+  }
+
+  /**
+   * Acquire the reusable flyweight cursor positioned at the newly appended slot.
+   * Enables direct zero-allocation field assignment:
+   * `const row = list.appendCursor(); row.orderId = 101;`
+   */
+  public appendCursor(): T {
+    if (this._length >= this._capacity) {
+      this.grow();
+    }
+    const idx = this._length++;
+    return this._cursor.moveTo(idx) as unknown as T;
   }
 
   /**
