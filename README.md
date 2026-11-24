@@ -52,19 +52,21 @@ Every high-throughput Node.js backend and complex web application eventually hit
 npm install @aventine/aegis-js
 ```
 
-### 1. Define a Struct (Zod-Style Ergonomics)
+### 1. Define a Struct (Fixed-Point Deterministic Domain Types)
 
 ```typescript
 import { Aegis } from '@aventine/aegis-js';
 
 // Automatically aligned to 64-byte CPU cache lines with zero padding leaks
+// and deterministic fixed-point integer arithmetic (CurrencyCents: i64, BasisPoints: i32)
 const OrderSchema = Aegis.struct({
-  orderId:  Aegis.uint32,   // 4 bytes
-  symbolId: Aegis.uint16,   // 2 bytes
-  price:    Aegis.float64,  // 8 bytes (naturally aligned)
-  quantity: Aegis.uint32,   // 4 bytes
-  side:     Aegis.uint8,    // 1 byte
-  filled:   Aegis.boolean,  // 1 byte
+  orderId:    Aegis.uint32,         // 4 bytes
+  symbolId:   Aegis.uint16,         // 2 bytes
+  feeBps:     Aegis.basisPoints,    // 4 bytes (i32: 10,000 bps = 100%)
+  priceCents: Aegis.currencyCents,  // 8 bytes (i64: exact integer cents, zero IEEE-754 drift)
+  quantity:   Aegis.uint32,         // 4 bytes
+  side:       Aegis.uint8,          // 1 byte
+  filled:     Aegis.boolean,        // 1 byte
 }, { alignment: 64 });
 ```
 
@@ -75,13 +77,14 @@ const OrderSchema = Aegis.struct({
 const orders = Aegis.createList(OrderSchema, { capacity: 100_000 });
 
 // Method A: Positional Emplace (Zero Temporary Object Literals)
-orders.emplace(10492, 4, 248.50, 500, 1, true);
+orders.emplace(10492, 4, 25, 24850n, 500, 1, true);
 
 // Method B: Direct Write Cursor (Strict Zero Allocation)
 const cursor = orders.appendCursor();
 cursor.orderId = 10493;
 cursor.symbolId = 4;
-cursor.price = 249.00;
+cursor.feeBps = 25;
+cursor.priceCents = 24900n;
 cursor.quantity = 100;
 cursor.side = 0;
 cursor.filled = false;
@@ -89,9 +92,19 @@ cursor.filled = false;
 // Zero-allocation traversal: 'order' is a single reusable Flyweight Cursor
 orders.forEach((order) => {
   if (order.filled) {
-    order.price *= 1.05; // Direct memory write with zero allocation
+    // Checked 128-bit intermediate multiply-divide (exact floor fee in cents)
+    const feeCents = Aegis.mulDivI64(order.priceCents, order.feeBps, 10_000n);
+    order.priceCents += feeCents;
   }
 });
+```
+
+### 3. Direct Compilation from `.aeg` Kernels (`aegisc build --target aegis-js`)
+
+Compile Z3-proved `.aeg` modules directly into ready-to-import `@aventine/aegis-js` modules (`.aegis_js.js` + `.aegis_js.d.ts`) with pre-compiled 64-byte `Aegis.struct` schemas, runtime `@requires` boundary guards, and TypeScript contract definitions:
+
+```bash
+aegisc build kernel.aeg --target aegis-js
 ```
 
 ---

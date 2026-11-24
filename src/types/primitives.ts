@@ -151,3 +151,131 @@ export function fixedBytes(bytes: number): FieldDefinition<Uint8Array> {
     }
   };
 }
+
+// ============================================================================
+// AEGIS v2.2 DETERMINISTIC FIXED-POINT DOMAIN TYPES & 128-BIT INTRINSICS
+// ============================================================================
+
+const I64_MIN = -9223372036854775808n;
+const I64_MAX = 9223372036854775807n;
+
+/**
+ * CurrencyCents (i64, 8 bytes): Deterministic monetary value in integer cents.
+ */
+export const currencyCents: FieldDefinition<bigint> = {
+  name: 'CurrencyCents',
+  byteLength: 8,
+  alignment: 8,
+  getter: (v, o) => v.getBigInt64(o, true),
+  setter: (v, o, val) => v.setBigInt64(o, BigInt(val), true)
+};
+
+/**
+ * BasisPoints (i32, 4 bytes): Deterministic rate in integer basis points (10,000 bps = 100%).
+ */
+export const basisPoints: FieldDefinition<number> = {
+  name: 'BasisPoints',
+  byteLength: 4,
+  alignment: 4,
+  getter: (v, o) => v.getInt32(o, true),
+  setter: (v, o, val) => v.setInt32(o, Number(val) | 0, true)
+};
+
+/**
+ * PriceTicks (i64, 8 bytes): Deterministic order-book price in integer ticks.
+ */
+export const priceTicks: FieldDefinition<bigint> = {
+  name: 'PriceTicks',
+  byteLength: 8,
+  alignment: 8,
+  getter: (v, o) => v.getBigInt64(o, true),
+  setter: (v, o, val) => v.setBigInt64(o, BigInt(val), true)
+};
+
+/**
+ * QuantityLots (i64, 8 bytes): Deterministic order-book quantity in integer lots.
+ */
+export const quantityLots: FieldDefinition<bigint> = {
+  name: 'QuantityLots',
+  byteLength: 8,
+  alignment: 8,
+  getter: (v, o) => v.getBigInt64(o, true),
+  setter: (v, o, val) => v.setBigInt64(o, BigInt(val), true)
+};
+
+/**
+ * TimestampNs (u64, 8 bytes): Deterministic nanosecond monotonic timestamp.
+ */
+export const timestampNs: FieldDefinition<bigint> = {
+  name: 'TimestampNs',
+  byteLength: 8,
+  alignment: 8,
+  getter: (v, o) => v.getBigUint64(o, true),
+  setter: (v, o, val) => v.setBigUint64(o, BigInt(val), true)
+};
+
+/**
+ * DurationNs (i64, 8 bytes): Deterministic signed nanosecond duration.
+ */
+export const durationNs: FieldDefinition<bigint> = {
+  name: 'DurationNs',
+  byteLength: 8,
+  alignment: 8,
+  getter: (v, o) => v.getBigInt64(o, true),
+  setter: (v, o, val) => v.setBigInt64(o, BigInt(val), true)
+};
+
+/**
+ * Checked 128-bit intermediate multiply-divide: `(a * b) / d` truncated toward zero.
+ * Matches Aegis v2.2 `mul_div_i64(a, b, d)` with deterministic `AEGIS_TRAP_DIV_BY_ZERO`
+ * and `AEGIS_TRAP_INT_OVERFLOW` traps.
+ */
+export function mulDivI64(a: bigint | number, b: bigint | number, d: bigint | number): bigint {
+  const ba = BigInt(a);
+  const bb = BigInt(b);
+  const bd = BigInt(d);
+  if (bd === 0n) {
+    const err = new Error('AEGIS_TRAP_DIV_BY_ZERO: mulDivI64 divisor is 0');
+    (err as any).trapCode = 'AEGIS_TRAP_DIV_BY_ZERO';
+    (err as any).code = 'AEGIS_TRAP_DIV_BY_ZERO';
+    throw err;
+  }
+  const q = (ba * bb) / bd;
+  if (q < I64_MIN || q > I64_MAX) {
+    const err = new Error('AEGIS_TRAP_INT_OVERFLOW: mulDivI64 quotient overflows i64');
+    (err as any).trapCode = 'AEGIS_TRAP_INT_OVERFLOW';
+    (err as any).code = 'AEGIS_TRAP_INT_OVERFLOW';
+    throw err;
+  }
+  return q;
+}
+
+/**
+ * Checked 128-bit intermediate rounded multiply-divide: `round_half_up((a * b) / d)`.
+ * Matches Aegis v2.2 `mul_div_round_i64(a, b, d)` with deterministic trap semantics.
+ */
+export function mulDivRoundI64(a: bigint | number, b: bigint | number, d: bigint | number): bigint {
+  const ba = BigInt(a);
+  const bb = BigInt(b);
+  const bd = BigInt(d);
+  if (bd === 0n) {
+    const err = new Error('AEGIS_TRAP_DIV_BY_ZERO: mulDivRoundI64 divisor is 0');
+    (err as any).trapCode = 'AEGIS_TRAP_DIV_BY_ZERO';
+    (err as any).code = 'AEGIS_TRAP_DIV_BY_ZERO';
+    throw err;
+  }
+  const prod = ba * bb;
+  const absD = bd < 0n ? -bd : bd;
+  const half = absD / 2n;
+  const sameSign = (prod >= 0n && bd > 0n) || (prod < 0n && bd < 0n);
+  const adj = bd > 0n ? (sameSign ? half : -half) : (sameSign ? -half : half);
+  const q = (prod + adj) / bd;
+  if (q < I64_MIN || q > I64_MAX) {
+    const err = new Error('AEGIS_TRAP_INT_OVERFLOW: mulDivRoundI64 quotient overflows i64');
+    (err as any).trapCode = 'AEGIS_TRAP_INT_OVERFLOW';
+    (err as any).code = 'AEGIS_TRAP_INT_OVERFLOW';
+    throw err;
+  }
+  return q;
+}
+

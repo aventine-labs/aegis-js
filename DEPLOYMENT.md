@@ -6,7 +6,7 @@ This guide details how to publish `@aventine/aegis-js` to npm and deploy the doc
 
 ## 1. Why a Standalone GitHub Repository?
 
-The primary Aventine Labs monorepo (`MyPassesCredentialVault`) contains private legal documents (`PRIVATECONFIDENTIAL/`), corporate ledgers, patent drafts, and proprietary native C compilers (`aegisc`). 
+The primary Aventine Labs internal monorepo contains confidential legal documents, corporate ledgers, patent drafts, and proprietary native compilers (`aegisc`).
 
 To preserve corporate security and allow Cloudflare Pages and npm to build automatically on every push, `Aegis.js` is published from its own standalone, public repository:
 - **Repository:** `https://github.com/aventine-labs/aegis-js`

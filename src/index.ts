@@ -12,6 +12,14 @@ import {
   boolean,
   fixedString,
   fixedBytes,
+  currencyCents,
+  basisPoints,
+  priceTicks,
+  quantityLots,
+  timestampNs,
+  durationNs,
+  mulDivI64,
+  mulDivRoundI64,
   FieldDefinition
 } from './types/primitives.js';
 
@@ -46,6 +54,16 @@ export const Aegis = {
   boolean,
   fixedString,
   fixedBytes,
+
+  // Aegis v2.2 Fixed-Point Domain Types & Checked 128-Bit Intrinsics
+  currencyCents,
+  basisPoints,
+  priceTicks,
+  quantityLots,
+  timestampNs,
+  durationNs,
+  mulDivI64,
+  mulDivRoundI64,
 
   // Struct & Schema
   struct,
@@ -100,6 +118,14 @@ export {
   boolean,
   fixedString,
   fixedBytes,
+  currencyCents,
+  basisPoints,
+  priceTicks,
+  quantityLots,
+  timestampNs,
+  durationNs,
+  mulDivI64,
+  mulDivRoundI64,
   struct,
   StructDefinition,
   Infer,
@@ -127,3 +153,4 @@ export {
 };
 
 export default Aegis;
+
